@@ -5,6 +5,9 @@ var Entity = cc.Class.extend({
         this._removed = false;
         this._sprite = null;
         this._uiBoard = null;
+        //
+        var sceneGame = sceneMgr.getScene(GV.SCENE_IDS.GAME);
+        this.setUIBoard(sceneGame.getNodeAnchorMap());
     },
 
     setUIBoard: function (uiBoard) {

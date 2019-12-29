@@ -1,15 +1,17 @@
 var Player = Mob.extend({
-    ctor: function (xt, yt) {
+    ctor: function (xt, yt, gameLogic) {
         this._super();
         this._input = null;
-        this._bombs = [];
-        this._timeBetweenPutBombs = 1;
+        this.gameLogic = gameLogic;
+        this._bombs = this.gameLogic.getBoms();
+        this._timeBetweenPutBombs = 0;
         this._x = Coordinates.tileToPixel(xt) + GameConst.TILES_SIZE.width / 2;
         this._y = Coordinates.tileToPixel(yt) + GameConst.TILES_SIZE.width / 2;
-        console.log("x " + this._x + "| y" +  this._y);
         this._sprite = new cc.Sprite("#img_character_side0.png");
         this._speed = 10;
-        this.gameLogic = null;
+        this._rateBom = 1;
+        this._radiusBoom = 2;
+        this._sprite.setAnchorPoint(cc.p(0.5, 0.45));
         this.updateSpriteByDirection();
     },
 
@@ -29,12 +31,13 @@ var Player = Mob.extend({
 
     update: function (dt) {
         this.animate(dt);
-        if(this._timeBetweenPutBombs < 0) {
-            this._timeBetweenPutBombs = 1;
+        if(this._timeBetweenPutBombs <= 0) {
+            this._timeBetweenPutBombs = 0;
         }else {
             this._timeBetweenPutBombs -= dt;
         }
         this.calculateMoving();
+        this.detectPlaceBom();
     },
 
     calculateMoving: function () {
@@ -93,24 +96,24 @@ var Player = Mob.extend({
     },
 
     canMove: function (xa, ya) {
-        var ofsX = 0;
-        var ofsY = 0;
         for(var i in GameConst.DIRECTION) {
-            /*var direction = GameConst.DIRECTION[i];
+            var ofsX = 0;
+            var ofsY = 0;
+            var direction = GameConst.DIRECTION[i];
             switch (direction) {
                 case GameConst.DIRECTION.UP:
-                    ofsY = GameConst.TILES_SIZE.width / 2;
+                    ofsY = GameConst.PLAYER_SIZE.height / 2 - 20;
                     break;
                 case GameConst.DIRECTION.DOWN:
-                    ofsY = - GameConst.TILES_SIZE.width / 2;
+                    ofsY = - GameConst.PLAYER_SIZE.height / 2 + 5;
                     break;
                 case GameConst.DIRECTION.RIGHT:
-                    ofsX = GameConst.TILES_SIZE.width / 2;
+                    ofsX = GameConst.TILES_SIZE.width / 2 - 3;
                     break;
                 case GameConst.DIRECTION.LEFT:
-                    ofsX = - GameConst.TILES_SIZE.width / 2;
+                    ofsX = - GameConst.TILES_SIZE.width / 2 + 3;
                     break;
-            }*/
+            }
             var xt = Coordinates.pixelToTile(this._x + xa + ofsX);
             var yt = Coordinates.pixelToTile(this._y + ya + ofsY);
             var entity = this.gameLogic.getEntity(xt, yt);
@@ -140,7 +143,45 @@ var Player = Mob.extend({
                 this._sprite.setFlippedX(true);
                 break;
         }
-    }
+    },
 
+    detectPlaceBom: function () {
+        if(this._input._space && this._timeBetweenPutBombs <= 0 && this._rateBom > 0) {
+            var xt = Coordinates.pixelToTile(this._x);
+            var yt = Coordinates.pixelToTile(this._y);
+            this.placeBom(xt, yt);
+        }
+    },
+
+    placeBom: function (xt, yt) {
+        var bom = new Bomb(xt, yt, this, this.gameLogic);
+        this._bombs.push(bom);
+        bom.render();
+        this._timeBetweenPutBombs = GameConst.TIME_BETWEEN_PLACE_BOM;
+        this.addRateBom(-1);
+    },
+
+    addRateBom: function (r) {
+        this._rateBom += r;
+    },
+
+    collide: function (entity) {
+        if(entity instanceof DirectionExplosion) {
+            this.kill();
+            return false;
+        }
+    },
+
+    kill: function () {
+        ZLog.error("player killed ");
+    },
+
+    getRateBom: function () {
+        return this._rateBom;
+    },
+
+    getRadiusBom: function () {
+        return this._radiusBoom;
+    }
 
 });

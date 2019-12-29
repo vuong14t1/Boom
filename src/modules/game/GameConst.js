@@ -10,5 +10,6 @@ var GameConst = {
         LEFT: 2,
         UP: 3
     },
-    PLAYER_SIZE : cc.size(37, 50)
+    PLAYER_SIZE : cc.size(37, 50),
+    TIME_BETWEEN_PLACE_BOM : 1
 };

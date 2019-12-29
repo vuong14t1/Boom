@@ -5,6 +5,9 @@ var WallTile = Tile.extend({
     },
 
     collide: function (entity) {
+        if(entity instanceof  DirectionExplosion) {
+            return false;
+        }
         return true;
     }
 });
