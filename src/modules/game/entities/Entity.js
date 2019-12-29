@@ -56,5 +56,5 @@ var Entity = cc.Class.extend({
 
     update: function () {
 
-    }
+    },
 });

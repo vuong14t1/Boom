@@ -8,9 +8,9 @@ var Player = Mob.extend({
         this._x = Coordinates.tileToPixel(xt) + GameConst.TILES_SIZE.width / 2;
         this._y = Coordinates.tileToPixel(yt) + GameConst.TILES_SIZE.width / 2;
         this._sprite = new cc.Sprite("#img_character_side0.png");
-        this._speed = 10;
-        this._rateBom = 1;
-        this._radiusBoom = 2;
+        this._speed = 5;
+        this._rateBom = 5;
+        this._radiusBoom = 15;
         this._sprite.setAnchorPoint(cc.p(0.5, 0.45));
         this.updateSpriteByDirection();
     },
@@ -61,7 +61,7 @@ var Player = Mob.extend({
 
         if(xa !== 0 || ya !== 0) {
             this._moving = true;
-            this.move(xa, ya)
+            this.move(xa * this._speed, ya * this._speed)
         }else {
             this._moving = false;
         }
@@ -160,6 +160,12 @@ var Player = Mob.extend({
         this._timeBetweenPutBombs = GameConst.TIME_BETWEEN_PLACE_BOM;
         this.addRateBom(-1);
     },
+
+    removeBom: function (bom) {
+        var idx = _.indexOf(this._bombs, bom);
+        this._bombs.splice(idx, 1);
+    },
+
 
     addRateBom: function (r) {
         this._rateBom += r;

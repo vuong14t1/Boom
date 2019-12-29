@@ -59,6 +59,8 @@ var GameLogic = cc.Class.extend({
         var entity = null;
         entity = this.getExplosionAt(xt, yt);
         if(entity) return entity;
+        entity = this.getBombAt(xt, yt);
+        if(entity) return entity;
         entity = this.getEntityAt(xt, yt);
         if(entity) return entity;
 
@@ -79,6 +81,16 @@ var GameLogic = cc.Class.extend({
         for(var i = 0; i < this._boms.length; i++) {
             var bom = this._boms[i];
             if(bom.explosionAt(xt, yt)) {
+                return bom;
+            }
+        }
+        return null;
+    },
+
+    getBombAt: function (xt, yt) {
+        for(var i = 0; i < this._boms.length; i++) {
+            var bom = this._boms[i];
+            if(bom.getXTile() === xt && bom.getYTile() === yt) {
                 return bom;
             }
         }

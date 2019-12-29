@@ -5,11 +5,12 @@ var Bomb = AnimatedEntity.extend({
         this._gameLogic = gameLogic;
         this._x = Coordinates.tileToPixel(xt) + GameConst.TILES_SIZE.width / 2;
         this._y = Coordinates.tileToPixel(yt) + GameConst.TILES_SIZE.width / 2;
-        this._timeToExplode = 4;
+        this._timeToExplode = 5;
         this._timeHide = 3;
         this._sprite = new cc.Sprite("#img_bom0.png");
         this._directionExplosion = [];
         this._exploded = false;
+        this._allowedToPassThru = true;
     },
 
     explosionAt: function (xt, yt) {
@@ -28,6 +29,19 @@ var Bomb = AnimatedEntity.extend({
         }else {
             this._timeToExplode -= dt;
         }
+
+        if(this._exploded) {
+            this._timeHide -= dt;
+            if(this._timeHide <= 0) {
+                this.removeExplosion();
+            }
+        }
+    },
+
+    removeExplosion: function () {
+        for(var i = 0; i < this._directionExplosion.length; i++) {
+            this._directionExplosion[i].removeExplosion();
+        }
     },
 
     explode: function () {
@@ -39,11 +53,23 @@ var Bomb = AnimatedEntity.extend({
             var direction = GameConst.DIRECTION[i];
             var directionExplosion = new DirectionExplosion(xt, yt, direction, this._player.getRadiusBom(), this._gameLogic);
             this._directionExplosion.push(directionExplosion);
-            // directionExplosion.render();
         }
+        this._player.addRateBom(1);
+        this._player.removeBom(this);
     },
 
-    collide: function () {
+    collide: function (entity) {
+        if(!this._exploded && entity instanceof Player) {
+            var diffX = Math.abs(entity.getX() - this.getX());
+            var diffY = Math.abs(entity.getY() - this.getY());
+            if(diffX > GameConst.TILES_SIZE.width || diffY > GameConst.TILES_SIZE.width) {
+                this._allowedToPassThru = false;
+            }
+            return !this._allowedToPassThru;
+        }
+        if(!this._exploded && entity instanceof DirectionExplosion) {
+            this.explode();
+        }
         return false;
     },
 });

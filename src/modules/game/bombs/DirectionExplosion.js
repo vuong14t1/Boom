@@ -36,7 +36,6 @@ var DirectionExplosion = Entity.extend({
 
     createExplosions: function () {
         var length = this.calculatePermitedDistance();
-        ZLog.error("create explosion direction " + this._direction + "| length " + length);
         var xtStart = this._xt;
         var ytStart = this._yt;
         for(var i = 0; i < length; i ++) {
@@ -72,5 +71,11 @@ var DirectionExplosion = Entity.extend({
             return false;
         }
         return true;
+    },
+
+    removeExplosion: function ( ){
+        for(var i = 0; i < this._explosions.length; i++) {
+            this._explosions[i].remove();
+        }
     }
 });
